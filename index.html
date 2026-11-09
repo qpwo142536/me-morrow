@@ -1,204 +1,53 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ME:MORROW | 내일의 나에게</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #F4F1EA;
-      color: #292F36;
-    }
-    header {
-      background: white;
-      padding: 22px 7%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e8e3d9;
-    }
-    .logo {
-      color: #2A4B7C;
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .wrap {
-      max-width: 900px;
-      margin: 45px auto;
-      padding: 0 20px;
-    }
-    h1 { font-size: 32px; }
-    .point { color: #2A4B7C; }
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin: 25px 0;
-    }
-    .card {
-      background: white;
-      padding: 23px;
-      border-radius: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 3px 15px #00000008;
-    }
-    .number { font-size: 30px; font-weight: bold; }
-    input, button {
-      width: 100%;
-      padding: 13px;
-      border-radius: 9px;
-      font-size: 15px;
-      margin-top: 10px;
-    }
-    input { border: 1px solid #ddd; }
-    button {
-      border: none;
-      background: #2A4B7C;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover { opacity: .85; }
-    .done {
-      background: #A8DADC;
-      color: #263B3D;
-    }
-    .status { color: #2A4B7C; font-size: 13px; }
-    @media(max-width:600px) {
-      h1 { font-size: 25px; }
-      .wrap { margin: 25px auto; }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F4F1EA">
+  <title>ME:MORROW — 내일의 나에게, 심부름센터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" data-view="home">
+        <span class="brand-mark">M<span>:</span></span>
+        <span><b>ME:MORROW</b><small>YOUR FUTURE, ON CONTRACT</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="nav-list" aria-label="주 메뉴">
+        <button class="nav-item active" data-view="home"><span class="nav-icon">⌂</span>오늘의 접수창구</button>
+        <button class="nav-item" data-view="requests"><span class="nav-icon">▤</span>미래로 보낸 의뢰</button>
+        <button class="nav-item" data-view="replan"><span class="nav-icon">↗</span>미완료 & 재계획</button>
+        <button class="nav-item" data-view="archive"><span class="nav-icon">▣</span>완료함 & 기록</button>
+        <button class="nav-item" data-view="report"><span class="nav-icon">▥</span>성취 리포트</button>
+      </nav>
+      <div class="side-bottom">
+        <div class="mini-card">
+          <span class="mini-star">✳</span>
+          <p>오늘의 나와<br><b>내일의 나를 연결해요.</b></p>
+          <small>작은 약속부터 시작해 보세요.</small>
+        </div>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span>설정</button>
+        <div class="profile"><div class="avatar-small">M</div><span><b>나의 미래 자아</b><small>계약 담당자</small></span><span class="online-dot"></span></div>
+      </div>
+    </aside>
 
-<header>
-  <div class="logo">ME:MORROW</div>
-  <div>내일의 나에게, 심부름센터</div>
-</header>
-
-<main class="wrap">
-  <p class="point">TODAY'S REQUEST OFFICE</p>
-  <h1>내일의 나에게,<br>
-    <span class="point">오늘의 의뢰를.</span>
-  </h1>
-  <p>오늘의 내가 맡긴 일들을 확인해 보세요.</p>
-
-  <section class="stats">
-    <div class="card">
-      <p>전체 의뢰</p>
-      <div class="number" id="total">0</div>
-    </div>
-    <div class="card">
-      <p>완료한 의뢰</p>
-      <div class="number" id="completed">0</div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>새로운 의뢰 작성</h2>
-    <input id="task" placeholder="어떤 일을 의뢰할까요?">
-    <input id="date" type="date">
-    <input id="time" type="time">
-    <input id="reward" placeholder="완수 후 받을 보상 (선택)">
-    <button onclick="addTask()">의뢰 발송하기</button>
-  </section>
-
-  <section>
-    <h2>내가 보낸 의뢰</h2>
-    <div id="taskList"></div>
-  </section>
-</main>
-
-<script>
-  let tasks = JSON.parse(
-    localStorage.getItem("morrowTasks") || "[]"
-  );
-
-  function save() {
-    localStorage.setItem(
-      "morrowTasks", JSON.stringify(tasks)
-    );
-  }
-
-  function addTask() {
-    const title = document.getElementById("task").value;
-    const date = document.getElementById("date").value;
-    const time = document.getElementById("time").value;
-    const reward = document.getElementById("reward").value;
-
-    if (!title || !date || !time) {
-      alert("의뢰 내용, 날짜, 시간을 입력해 주세요.");
-      return;
-    }
-
-    tasks.push({
-      title, date, time, reward,
-      status: "접수 대기"
-    });
-
-    save();
-    document.getElementById("task").value = "";
-    document.getElementById("date").value = "";
-    document.getElementById("time").value = "";
-    document.getElementById("reward").value = "";
-    render();
-    alert("미래의 나에게 의뢰를 발송했어요!");
-  }
-
-  function completeTask(index) {
-    tasks[index].status = "완료됨";
-    save();
-    render();
-  }
-
-  function render() {
-    const list = document.getElementById("taskList");
-    list.innerHTML = "";
-
-    tasks.forEach((task, index) => {
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const title = document.createElement("h3");
-      title.textContent = task.title;
-
-      const detail = document.createElement("p");
-      detail.textContent = task.date + " " + task.time;
-
-      const reward = document.createElement("p");
-      reward.textContent = task.reward
-        ? "보상: " + task.reward : "보상 미설정";
-
-      const status = document.createElement("p");
-      status.className = "status";
-      status.textContent = task.status;
-
-      card.append(title, detail, reward, status);
-
-      if (task.status !== "완료됨") {
-        const btn = document.createElement("button");
-        btn.className = "done";
-        btn.textContent = "의뢰 완료하기";
-        btn.onclick = () => completeTask(index);
-        card.appendChild(btn);
-      }
-
-      list.appendChild(card);
-    });
-
-    document.getElementById("total").textContent =
-      tasks.length;
-
-    document.getElementById("completed").textContent =
-      tasks.filter(t => t.status === "완료됨").length;
-  }
-
-  render();
-</script>
-
+    <main class="main-area">
+      <header class="topbar">
+        <div class="mobile-brand">ME:MORROW <span>:</span></div>
+        <div class="breadcrumb">ME:MORROW <span>/</span> <b id="pageCrumb">오늘의 접수창구</b></div>
+        <div class="top-actions"><span class="today-date" id="todayDate"></span><button class="icon-button" id="helpBtn" aria-label="도움말">?</button></div>
+      </header>
+      <div class="content" id="appContent"></div>
+      <footer class="footer">ME:MORROW <span>·</span> 현재의 내가 미래의 나를 고용한다.</footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="modal-backdrop" id="modalBackdrop" hidden><section class="modal" id="modal" role="dialog" aria-modal="true"></section></div>
+  <script src="js/app.js"></script>
 </body>
 </html>
